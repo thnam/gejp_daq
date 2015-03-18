@@ -52,6 +52,10 @@ DRV = $(DRVDIR)/*.o
 SRCDIR = src
 OBJDIR = obj
 
+# ana modules
+ANAMODULES = phadc_ana
+ANAMODULE_OBJS = $(OBJDIR)/$(ANAMODULES).o
+
 # ROOT flags
 ROOTLIBDIR := $(shell $(ROOTSYS)/bin/root-config --libdir)
 ROOTLIBS   := -L$(ROOTLIBDIR) $(shell $(ROOTSYS)/bin/root-config --libs) 
@@ -74,7 +78,7 @@ $(UFE): $(OBJDIR)/$(UFE).o $(MIDASLIBS) $(MFE)
 $(ODBSETUP): $(OBJDIR)/$(ODBSETUP).o $(MIDASLIBS) 
 	$(CXX) -o $@ $(CXXFLAGS) $(OSFLAGS) $^ $(MIDASLIBS) $(LIBS)
 
-$(ANALYZER): $(OBJDIR)/$(ANALYZER).o $(MANA)
+$(ANALYZER): $(OBJDIR)/$(ANALYZER).o $(MANA) $(ANAMODULE_OBJS)
 	$(CXX) -o $@ $(CXXFLAGS) $^ $(ROOTANALIB) $(MIDASLIBS) $(ROOTGLIBS) \
 		-lm -lz -lpthread -lrt -lutil $(RPATH)
 
