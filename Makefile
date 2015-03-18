@@ -49,6 +49,8 @@ CXXFLAGS += -I$(DRVDIR)
 
 DRV = $(DRVDIR)/*.o
 
+SRCDIR = src
+OBJDIR = obj
 
 # ROOT flags
 ROOTLIBDIR := $(shell $(ROOTSYS)/bin/root-config --libdir)
@@ -63,17 +65,16 @@ ODBSETUP  = odbsetup
 ######################################################################
 # RULES
 ######################################################################
-#all: $(UFE)  $(ODBSETUP)
-all: $(ANALYZER)
+all: $(UFE)  $(ODBSETUP) $(ANALYZER)
 
-$(UFE): $(UFE).o $(MIDASLIBS) $(MFE) 
+$(UFE): $(OBJDIR)/$(UFE).o $(MIDASLIBS) $(MFE) 
 	@echo "Linking ..."
 	$(CXX) -o $@ $(CXXFLAGS) $(OSFLAGS) $^ $(LIBS) $(DRV)
 
-$(ODBSETUP): $(ODBSETUP).o $(MIDASLIBS) 
+$(ODBSETUP): $(OBJDIR)/$(ODBSETUP).o $(MIDASLIBS) 
 	$(CXX) -o $@ $(CXXFLAGS) $(OSFLAGS) $^ $(MIDASLIBS) $(LIBS)
 
-$(ANALYZER): $(ANALYZER).o $(MANA)
+$(ANALYZER): $(OBJDIR)/$(ANALYZER).o $(MANA)
 	$(CXX) -o $@ $(CXXFLAGS) $^ $(ROOTANALIB) $(MIDASLIBS) $(ROOTGLIBS) \
 		-lm -lz -lpthread -lrt -lutil $(RPATH)
 
