@@ -4,6 +4,8 @@
 
 #include "midas.h"
 
+#include "TH1I.h"
+
 char *analyzer_name = "Analyzer";
 
 /* analyzer_loop is called with this interval in ms (0 to disable)  */
@@ -18,25 +20,26 @@ INT phadc_ana_bor(INT run_number);
 INT phadc_ana_eor(INT run_number);
 
 // dummy structures ...
-typedef struct { INT dummy[8];} DUMMY_PARAM;
+typedef struct { INT dummy[1];} DUMMY_PARAM;
 DUMMY_PARAM phadc_ana_param;
-char *phadc_ana_param_str[] = {" ", NULL};
+char *phadc_ana_param_str[] = {
+  "[.]", "Dummy = INT[1] :", "[0] 0", NULL};
 
 ANA_MODULE phadc_ana_module = {
-   "PHADC analysis",           /* module name           */
-   "NT",               /* author                */
-   phadc_ana,                   /* event routine         */
-   phadc_ana_bor,               /* BOR routine           */
-   phadc_ana_eor,               /* EOR routine           */
-   phadc_ana_init,              /* init routine          */
-   NULL,                        /* exit routine          */
-   &phadc_ana_param,             /* parameter structure   */
-   sizeof(phadc_ana_param),      /* structure size        */
-   phadc_ana_param_str,   /* initial parameters    */
+  "PHADC analysis",           /* module name           */
+  "NT",               /* author                */
+  phadc_ana,                   /* event routine         */
+  phadc_ana_bor,               /* BOR routine           */
+  phadc_ana_eor,               /* EOR routine           */
+  phadc_ana_init,              /* init routine          */
+  NULL,                        /* exit routine          */
+  &phadc_ana_param,             /* parameter structure   */
+  sizeof(phadc_ana_param),      /* structure size        */
+  phadc_ana_param_str,   /* initial parameters    */
 };
 
 
-ANA_MODULE *trigger_module[] = {NULL};
+ANA_MODULE *trigger_module[] = {&phadc_ana_module, NULL};
 
 BANK_LIST ana_trigger_bank_list[] = {
   {"PHA", TID_INT, 1, NULL},
@@ -67,21 +70,21 @@ ANALYZE_REQUEST analyze_request[] = {
 
 INT analyzer_init()
 {
-   return SUCCESS;
+  return SUCCESS;
 }
 
 /*-- Analyzer Exit -------------------------------------------------*/
 
 INT analyzer_exit()
 {
-   return CM_SUCCESS;
+  return CM_SUCCESS;
 }
 
 /*-- Begin of Run --------------------------------------------------*/
 
 INT ana_begin_of_run(INT run_number, char *error)
 {
-   return CM_SUCCESS;
+  return CM_SUCCESS;
 }
 
 /*-- End of Run ----------------------------------------------------*/
@@ -89,57 +92,75 @@ INT ana_begin_of_run(INT run_number, char *error)
 INT ana_end_of_run(INT run_number, char *error)
 {
 
-   return CM_SUCCESS;
+  return CM_SUCCESS;
 }
 
 /*-- Pause Run -----------------------------------------------------*/
 
 INT ana_pause_run(INT run_number, char *error)
 {
-   return CM_SUCCESS;
+  return CM_SUCCESS;
 }
 
 /*-- Resume Run ----------------------------------------------------*/
 
 INT ana_resume_run(INT run_number, char *error)
 {
-   return CM_SUCCESS;
+  return CM_SUCCESS;
 }
 
 /*-- Analyzer Loop -------------------------------------------------*/
 
 INT analyzer_loop()
 {
-   return CM_SUCCESS;
+  return CM_SUCCESS;
 }
 
 /*------------------------------------------------------------------*/
 
+static TH1I *hPHADC;
+#include "TObjArray.h"
+#include "TFolder.h"
+extern TObjArray* gHistoFolderStack;
+extern TFolder* gManaHistosFolder;
 
 INT phadc_ana_init(void)
 {
 
-   return SUCCESS;
+  hPHADC = new TH1I("PHADC", "PHADC", 16384, 0, 16383);
+  if (!gHistoFolderStack->Last())
+    gManaHistosFolder->Add(hPHADC);
+  else
+    ((TFolder *) gHistoFolderStack->Last())->Add(hPHADC);
+  return SUCCESS;
 }
 
 /*-- BOR routine ---------------------------------------------------*/
 
 INT phadc_ana_bor(INT run_number)
 {
-   return SUCCESS;
+  return SUCCESS;
 }
 
 /*-- eor routine ---------------------------------------------------*/
 
 INT phadc_ana_eor(INT run_number)
 {
-   return SUCCESS;
+  return SUCCESS;
 }
 
 /*-- event routine -------------------------------------------------*/
 
 INT phadc_ana(EVENT_HEADER * pheader, void *pevent)
 {
+  int *pdata;
+  if (!bk_locate(pevent, "PHA", &pdata))
+  {
+    printf("bank not found\n");
+    return 1;
+  }
 
-   return SUCCESS;
+  hPHADC->Fill(pdata[0]);
+
+  return SUCCESS;
 }
