@@ -111,11 +111,12 @@ resume_run:     When a run is resumed. Should enable trigger events.
 
 int evt_cnt = 0;
 
+MVME_INTERFACE *myvme;
+
 /*-- Frontend Init -------------------------------------------------*/
 INT frontend_init()
 {
   // Init VME interface
-	MVME_INTERFACE *myvme;
 	mvme_open(&myvme, 0);
 
   LAM = 0;
