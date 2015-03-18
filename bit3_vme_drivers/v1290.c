@@ -525,7 +525,7 @@ uint16_t v1290_ReadEventFIFOStatus(MVME_INTERFACE *mvme, uint32_t base)
 	return (v1290_Read16(mvme, base, V1290_EVENT_FIFO_STATUS)&0x3);
 }
 
-#define TEST_V1290
+/*#define TEST_V1290*/
 #ifdef TEST_V1290
 
 #define V1290N_BASE 0x00400000

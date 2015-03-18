@@ -19,8 +19,9 @@
 #define EQ_EVID 1
 
 #include "bt617_vmedrv.h"
-#include "rpv130.h"
 #include "bt617.h"
+#include "rpv130.h"
+#include "v006.h"
 
 #define RPV130_BASE 0x8000
 #define V006_BASE 0xEFFF00
@@ -119,13 +120,18 @@ INT frontend_init()
   // Init VME interface
 	mvme_open(&myvme, 0);
 
-  LAM = 0;
+  // Clear modules
+  v006_clear(myvme, V006_BASE);
+
+
+
   return SUCCESS;
 }
 
 /*-- Frontend Exit -------------------------------------------------*/
 INT frontend_exit()
 {
+  mvme_close(myvme);
   return SUCCESS;
 }
 
@@ -134,7 +140,11 @@ INT begin_of_run(INT run_number, char *error)
 {
   printf("Begin run %d\n", run_number);
   evt_cnt = 0;
-  LAM = 1;
+  // Clear busy status
+  rpv130_ClearBusy1(myvme, RPV130_BASE);
+  rpv130_ClearBusy3(myvme, RPV130_BASE);
+  rpv130_Pulse(myvme, RPV130_BASE, 1);
+
   return SUCCESS;
 }
 
@@ -183,9 +193,9 @@ extern "C" INT poll_event(INT source, INT count, BOOL test)
   else
     for (int i = 0; i < count; i++) 
     {
-      if (LAM)
+      if (rpv130_IsBusy3(myvme, RPV130_BASE))
       {
-        LAM = 0;
+        rpv130_ClearBusy3(myvme, RPV130_BASE);
         return 1;
       }
       else

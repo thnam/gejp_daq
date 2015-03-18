@@ -36,7 +36,7 @@ uint32_t v005_adc(MVME_INTERFACE *vme, mvme_addr_t base, uint16_t ch)
 }
 
 
-#define TEST_V005
+/*#define TEST_V005*/
 #ifdef TEST_V005
 /*#define V005_BASE 0xDFFF00*/
 #define V005_BASE 0xCFFF00

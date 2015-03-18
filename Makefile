@@ -46,7 +46,7 @@ DRVDIR = ./bit3_vme_drivers
 CFLAGS += -I$(DRVDIR)
 CXXFLAGS += -I$(DRVDIR)
 
-DRV = $(DRVDIR)/bt617.o $(DRVDIR)/rpv130.o
+DRV = $(DRVDIR)/bt617.o $(DRVDIR)/rpv130.o $(DRVDIR)/v006.o
 
 # ROOT flags
 ROOTLIBDIR := $(shell $(ROOTSYS)/bin/root-config --libdir)
