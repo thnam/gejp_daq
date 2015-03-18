@@ -245,14 +245,14 @@ int read_trigger_event(char *pevent, int off)
   bk_init32(pevent);
   evt_cnt++;
 
-  double* pdatad;
-  bk_create(pevent, "NEVT", TID_DOUBLE, &pdatad);
+  int* pdatad;
+  bk_create(pevent, "PHA", TID_INT, &pdatad);
   int lam_v006 = v006_readLAM(myvme, V006_BASE, 0);
   if (lam_v006)
   {
-    pdatad[0] = v006_adc(myvme, V006_BASE, 0);
+    pdatad[0] = (int) v006_adc(myvme, V006_BASE, 0);
 #ifdef DEBUG
-    cm_msg(MINFO, frontend_name, "adc:  %f ", pdatad[0]);
+    cm_msg(MINFO, frontend_name, "adc:  %d ", pdatad[0]);
 #endif
   }
   else
