@@ -41,8 +41,14 @@ endif
 MIDASLIBS = $(MIDASSYS)/$(OSTYPE)/lib/libmidas.a 
 MFE       = $(MIDASSYS)/$(OSTYPE)/lib/mfe.o
 
-# settings for building things in seperate dirs
+# VME drivers
+DRVDIR = ./bit3_vme_drivers
+CFLAGS += -I$(DRVDIR)
+CXXFLAGS += -I$(DRVDIR)
 
+DRV = $(DRVDIR)/bt617.o $(DRVDIR)/rpv130.o
+
+# ROOT flags
 ROOTLIBDIR := $(shell $(ROOTSYS)/bin/root-config --libdir)
 ROOTLIBS   := -L$(ROOTLIBDIR) $(shell $(ROOTSYS)/bin/root-config --libs) 
 ROOTGLIBS  := -L$(ROOTLIBDIR) $(shell $(ROOTSYS)/bin/root-config --glibs)
@@ -59,7 +65,7 @@ all: $(UFE)
 
 $(UFE): $(UFE).o $(MIDASLIBS) $(MFE) 
 	@echo "Linking ..."
-	$(CXX) -o $@ $(CXXFLAGS) $(OSFLAGS) $^ $(LIBS)
+	$(CXX) -o $@ $(CXXFLAGS) $(OSFLAGS) $^ $(LIBS) $(DRV)
 
 $(ANALYZER): $(ANAMODULEOBJS) $(HELPEROBJS) $(OBJDIR)/$(ANALYZER).o
 	$(CXX) -o $@ $(CXXFLAGS) $^ $(ROOTANALIB) $(MIDASLIBS) $(ROOTGLIBS) \

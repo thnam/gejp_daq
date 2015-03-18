@@ -18,6 +18,14 @@
 #define EQ_NAME "VME Bit3 Trigger"
 #define EQ_EVID 1
 
+#include "bt617_vmedrv.h"
+#include "rpv130.h"
+#include "bt617.h"
+
+#define RPV130_BASE 0x8000
+#define V006_BASE 0xEFFF00
+
+
 /* make frontend functions callable from the C framework */
 #ifdef __cplusplus
 extern "C" {
@@ -106,6 +114,10 @@ int evt_cnt = 0;
 /*-- Frontend Init -------------------------------------------------*/
 INT frontend_init()
 {
+  // Init VME interface
+	MVME_INTERFACE *myvme;
+	mvme_open(&myvme, 0);
+
   LAM = 0;
   return SUCCESS;
 }
