@@ -12,7 +12,32 @@ INT analyzer_loop_period = 0;
 /* default ODB size */
 INT odb_size = DEFAULT_ODB_SIZE;
 
+INT phadc_ana(EVENT_HEADER *, void *);
+INT phadc_ana_init(void);
+INT phadc_ana_bor(INT run_number);
+INT phadc_ana_eor(INT run_number);
+
+// dummy structures ...
+typedef struct { INT dummy[8];} DUMMY_PARAM;
+DUMMY_PARAM phadc_ana_param;
+char *phadc_ana_param_str[] = {" ", NULL};
+
+ANA_MODULE phadc_ana_module = {
+   "PHADC analysis",           /* module name           */
+   "NT",               /* author                */
+   phadc_ana,                   /* event routine         */
+   phadc_ana_bor,               /* BOR routine           */
+   phadc_ana_eor,               /* EOR routine           */
+   phadc_ana_init,              /* init routine          */
+   NULL,                        /* exit routine          */
+   &phadc_ana_param,             /* parameter structure   */
+   sizeof(phadc_ana_param),      /* structure size        */
+   phadc_ana_param_str,   /* initial parameters    */
+};
+
+
 ANA_MODULE *trigger_module[] = {NULL};
+
 BANK_LIST ana_trigger_bank_list[] = {
   {"PHA", TID_INT, 1, NULL},
   {""},
@@ -63,14 +88,6 @@ INT ana_begin_of_run(INT run_number, char *error)
 
 INT ana_end_of_run(INT run_number, char *error)
 {
-   FILE *f;
-   time_t now;
-   char str[256];
-   int size;
-   double n;
-   HNDLE hDB;
-   BOOL flag;
-
 
    return CM_SUCCESS;
 }
@@ -97,3 +114,32 @@ INT analyzer_loop()
 }
 
 /*------------------------------------------------------------------*/
+
+
+INT phadc_ana_init(void)
+{
+
+   return SUCCESS;
+}
+
+/*-- BOR routine ---------------------------------------------------*/
+
+INT phadc_ana_bor(INT run_number)
+{
+   return SUCCESS;
+}
+
+/*-- eor routine ---------------------------------------------------*/
+
+INT phadc_ana_eor(INT run_number)
+{
+   return SUCCESS;
+}
+
+/*-- event routine -------------------------------------------------*/
+
+INT phadc_ana(EVENT_HEADER * pheader, void *pevent)
+{
+
+   return SUCCESS;
+}
