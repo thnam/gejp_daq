@@ -40,6 +40,7 @@ endif
 # MIDAS library
 MIDASLIBS = $(MIDASSYS)/$(OSTYPE)/lib/libmidas.a 
 MFE       = $(MIDASSYS)/$(OSTYPE)/lib/mfe.o
+MANA 			= $(MIDASSYS)/$(OSTYPE)/lib/rmana.o
 
 # VME drivers
 DRVDIR = ./bit3_vme_drivers
@@ -62,8 +63,8 @@ ODBSETUP  = odbsetup
 ######################################################################
 # RULES
 ######################################################################
-all: $(UFE)  $(ODBSETUP)
-#all: $(ANALYZER)
+#all: $(UFE)  $(ODBSETUP)
+all: $(ANALYZER)
 
 $(UFE): $(UFE).o $(MIDASLIBS) $(MFE) 
 	@echo "Linking ..."
@@ -72,9 +73,9 @@ $(UFE): $(UFE).o $(MIDASLIBS) $(MFE)
 $(ODBSETUP): $(ODBSETUP).o $(MIDASLIBS) 
 	$(CXX) -o $@ $(CXXFLAGS) $(OSFLAGS) $^ $(MIDASLIBS) $(LIBS)
 
-$(ANALYZER): $(ANAMODULEOBJS) $(HELPEROBJS) $(OBJDIR)/$(ANALYZER).o
+$(ANALYZER): $(ANALYZER).o $(MANA)
 	$(CXX) -o $@ $(CXXFLAGS) $^ $(ROOTANALIB) $(MIDASLIBS) $(ROOTGLIBS) \
-		-lm -lz -lpthread $(RPATH)
+		-lm -lz -lpthread -lrt -lutil $(RPATH)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cc  Makefile
 	@mkdir -p $(shell dirname $@)
