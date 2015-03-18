@@ -15,7 +15,7 @@ CXXFLAGS += -I$(MIDAS_INC)
 
 TARGETS = r
 SRC = v1290
-DRV = bt617.o rpv130.o v006.o v005.o
+DRV = bt617.o rpv130.o v006.o v005.o v1290.o
 
 .PHONY: clean drivers
 
