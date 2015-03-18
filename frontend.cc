@@ -26,6 +26,8 @@
 #define RPV130_BASE 0x8000
 #define V006_BASE 0xEFFF00
 
+#define DEBUG
+#undef DEBUG
 
 /* make frontend functions callable from the C framework */
 #ifdef __cplusplus
@@ -138,12 +140,15 @@ INT frontend_exit()
 /*-- Begin of Run --------------------------------------------------*/
 INT begin_of_run(INT run_number, char *error)
 {
-  printf("Begin run %d\n", run_number);
+#ifdef DEBUG
+  cm_msg(MINFO, frontend_name, "Begin run %d\n", run_number);
+#endif
   evt_cnt = 0;
   // Clear busy status
   rpv130_ClearBusy1(myvme, RPV130_BASE);
   rpv130_ClearBusy3(myvme, RPV130_BASE);
   rpv130_Pulse(myvme, RPV130_BASE, 1);
+  rpv130_Pulse(myvme, RPV130_BASE, 2);
 
   return SUCCESS;
 }
@@ -151,8 +156,11 @@ INT begin_of_run(INT run_number, char *error)
 /*-- End of Run ----------------------------------------------------*/
 INT end_of_run(INT run_number, char *error)
 {
-  printf("End run %d!\n", run_number);
+  rpv130_Pulse(myvme, RPV130_BASE, 1);
+#ifdef DEBUG
+  cm_msg(MINFO, frontend_name, "End run %d!\n", run_number);
   cm_msg(MINFO, frontend_name, "read %d triggered events", evt_cnt);
+#endif
   return SUCCESS;
 }
 
@@ -195,6 +203,9 @@ extern "C" INT poll_event(INT source, INT count, BOOL test)
     {
       if (rpv130_IsBusy3(myvme, RPV130_BASE))
       {
+#ifdef DEBUG
+        cm_msg(MINFO, frontend_name, "Triggered %d\n", evt_cnt);
+#endif
         rpv130_ClearBusy3(myvme, RPV130_BASE);
         return 1;
       }
@@ -240,10 +251,24 @@ int read_trigger_event(char *pevent, int off)
   if (lam_v006)
   {
     pdatad[0] = v006_adc(myvme, V006_BASE, 0);
+#ifdef DEBUG
+    cm_msg(MINFO, frontend_name, "adc:  %f ", pdatad[0]);
+#endif
+  }
+  else
+  {
+#ifdef DEBUG
+    cm_msg(MINFO, frontend_name, "No data ..");
+#endif
+    ss_sleep(1);
   }
   bk_close(pevent, pdatad + 1);
 
-  v006_clear(myvme, V006_BASE);
+  // reset pulse to V006
+  rpv130_Pulse(myvme, RPV130_BASE, 2);
+  // reset flip/flop for a new event
+  rpv130_Pulse(myvme, RPV130_BASE, 1);
+
   return bk_size(pevent);
 }
 // end file
