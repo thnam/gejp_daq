@@ -41,11 +41,7 @@ extern TFolder* gManaHistosFolder;
 INT phadc_ana_init(void)
 {
 
-  hPHADC = new TH1I("PHADC", "PHADC", 16384, 0, 16383);
-  if (!gHistoFolderStack->Last())
-    gManaHistosFolder->Add(hPHADC);
-  else
-    ((TFolder *) gHistoFolderStack->Last())->Add(hPHADC);
+  hPHADC = h1_book<TH1I>("PHADC", "PHADC", 16384, 0, 16383);
   return SUCCESS;
 }
 

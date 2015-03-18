@@ -20,7 +20,7 @@ ifeq ($(OSTYPE),linux)
 	OS_DIR = linux
 	OSFLAGS = -DOS_LINUX -Dextname
 	# OSFLAGS += -m32 
-	CXXFLAGS   = -g -O2 -Wall -Wuninitialized -I$(MIDASSYS)/include
+	CXXFLAGS   = -g -O2 -Wall -Wuninitialized 
 	CFLAGS = $(CXXFLAGS)
 	LIBS = -lm -lz -lutil -lnsl -lpthread -lrt 
 endif
@@ -32,7 +32,7 @@ ifeq ($(OSTYPE),darwin)
 	OS_DIR = darwin
 	OSFLAGS = -DOS_LINUX -DOS_DARWIN -Dextname
 	# OSFLAGS += -m32 
-	CXXFLAGS   = -g -O2 -Wall -Wuninitialized -I$(MIDASSYS)/include
+	CXXFLAGS   = -g -O2 -Wall -Wuninitialized
 	CFLAGS = $(CXXFLAGS)
 	LIBS = -lm -lz 
 endif
@@ -60,9 +60,11 @@ ANAMODULE_OBJS = $(OBJDIR)/$(ANAMODULES).o
 ROOTLIBDIR := $(shell $(ROOTSYS)/bin/root-config --libdir)
 ROOTLIBS   := -L$(ROOTLIBDIR) $(shell $(ROOTSYS)/bin/root-config --libs) 
 ROOTGLIBS  := -L$(ROOTLIBDIR) $(shell $(ROOTSYS)/bin/root-config --glibs)
-ROOTCFLAGS := $(shell $(ROOTSYS)/bin/root-config --cflags)
+ROOTCFLAGS := $(shell $(ROOTSYS)/bin/root-config --cflags) -DHAVE_ROOT -DUSE_ROOT
 RPATH    += -Wl,-rpath,$(ROOTLIBDIR)
-CXXFLAGS += -DHAVE_ROOT $(ROOTCFLAGS)
+
+LIBS += $(ROOTLIBS)
+
 CXXFLAGS += -DHAVE_MIDAS -I$(MIDASSYS)/include
 
 ODBSETUP  = odbsetup
@@ -84,7 +86,7 @@ $(ANALYZER): $(OBJDIR)/$(ANALYZER).o $(MANA) $(ANAMODULE_OBJS)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cc  Makefile
 	@mkdir -p $(shell dirname $@)
-	$(CXX) $(CXXFLAGS) $(OSFLAGS) -c $< -o $@
+	$(CXX) $(ROOTCFLAGS) $(CXXFLAGS) $(OSFLAGS) -c $< -o $@
 
 %.o: %.cc  Makefile
 	$(CXX) $(CXXFLAGS) $(OSFLAGS) -c $< -o $@
