@@ -3,3 +3,10 @@ exptab
 frontend
 analyzer
 */r
+midas.log
+.*SHM*
+odbsetup
+
+log/*
+output/*
+test/*

@@ -30,3 +30,12 @@ else
   cd ..
 fi
 
+# Make odbsetup
+echo "Making odbsetup ..."
+make odbsetup
+if [[ $? -ne 0 ]] ; then
+  echo "Could not make odbsetup!"
+else
+  ./odbsetup
+  echo "Done!"
+fi

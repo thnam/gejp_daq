@@ -58,15 +58,19 @@ RPATH    += -Wl,-rpath,$(ROOTLIBDIR)
 CXXFLAGS += -DHAVE_ROOT $(ROOTCFLAGS)
 CXXFLAGS += -DHAVE_MIDAS -I$(MIDASSYS)/include
 
+ODBSETUP  = odbsetup
 ######################################################################
 # RULES
 ######################################################################
-all: $(UFE) 
+all: $(UFE)  $(ODBSETUP)
 #all: $(ANALYZER)
 
 $(UFE): $(UFE).o $(MIDASLIBS) $(MFE) 
 	@echo "Linking ..."
 	$(CXX) -o $@ $(CXXFLAGS) $(OSFLAGS) $^ $(LIBS) $(DRV)
+
+$(ODBSETUP): $(ODBSETUP).o $(MIDASLIBS) 
+	$(CXX) -o $@ $(CXXFLAGS) $(OSFLAGS) $^ $(MIDASLIBS) $(LIBS)
 
 $(ANALYZER): $(ANAMODULEOBJS) $(HELPEROBJS) $(OBJDIR)/$(ANALYZER).o
 	$(CXX) -o $@ $(CXXFLAGS) $^ $(ROOTANALIB) $(MIDASLIBS) $(ROOTGLIBS) \
@@ -74,6 +78,9 @@ $(ANALYZER): $(ANAMODULEOBJS) $(HELPEROBJS) $(OBJDIR)/$(ANALYZER).o
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cc  Makefile
 	@mkdir -p $(shell dirname $@)
+	$(CXX) $(CXXFLAGS) $(OSFLAGS) -c $< -o $@
+
+%.o: %.cc  Makefile
 	$(CXX) $(CXXFLAGS) $(OSFLAGS) -c $< -o $@
 
 clean::

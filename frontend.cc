@@ -236,14 +236,14 @@ int read_trigger_event(char *pevent, int off)
 
   double* pdatad;
   bk_create(pevent, "NEVT", TID_DOUBLE, &pdatad);
-  //time_t t = time(NULL);
-  pdatad[0] = evt_cnt;
-  //printf("time %d, data %f\n", (int)t, pdatad[2]);
+  int lam_v006 = v006_readLAM(myvme, V006_BASE, 0);
+  if (lam_v006)
+  {
+    pdatad[0] = v006_adc(myvme, V006_BASE, 0);
+  }
   bk_close(pevent, pdatad + 1);
 
-  ss_sleep(1000);
-  LAM = 1;
-
+  v006_clear(myvme, V006_BASE);
   return bk_size(pevent);
 }
 // end file
