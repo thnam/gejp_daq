@@ -33,10 +33,6 @@ ANA_MODULE phadc_ana_module = {
 /*------------------------------------------------------------------*/
 
 static TH1I *hPHADC;
-#include "TObjArray.h"
-#include "TFolder.h"
-extern TObjArray* gHistoFolderStack;
-extern TFolder* gManaHistosFolder;
 
 INT phadc_ana_init(void)
 {
