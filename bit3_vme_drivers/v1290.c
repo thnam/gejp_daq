@@ -176,7 +176,14 @@ int v1290_AcqModeRead(MVME_INTERFACE *mvme, uint32_t base)
   mvme_set_dmode(mvme, MVME_DMODE_D16);
   value = v1290_MicroWrite(mvme, base, V1290_READ_ACQ_MOD_OPCODE);
   value = v1290_MicroRead(mvme, base);
-	printf("AcqMode (0 - cont., 1 - trigger matching): %X\n",value&0x1);
+  if ((value & 0x1) == 1)
+  {
+    printf("AcqMode: trigger matching.\n");
+  }
+  else if ((value & 0x1) == 0)
+  {
+    printf("AcqMode: continuous.\n");
+  }
   mvme_set_dmode(mvme, cmode);
 	return (value & 0x1);
 }
@@ -251,12 +258,52 @@ void v1290_SetEdgeResolution(MVME_INTERFACE *mvme, uint32_t base, uint16_t res)
 
 uint16_t v1290_ReadEdgeResolution(MVME_INTERFACE *mvme, uint32_t base)
 {
-	return v1290_ReadMicro(mvme, base, V1290_READ_RES_OPCODE);
+	uint16_t ret = v1290_ReadMicro(mvme, base, V1290_READ_RES_OPCODE);
+  switch (ret)
+  {
+    case 0:
+      printf("Resolution: 800 ps\n");
+      break;
+    case 1:
+      printf("Resolution: 200 ps\n");
+      break;
+    case 2:
+      printf("Resolution: 100 ps\n");
+      break;
+    case 3:
+      printf("Resolution: 25 ps\n");
+      break;
+    default:
+      printf("Invalid setting!\n");
+      ret = 100;
+      break;
+  }
+  return ret;
 }
 
 uint16_t v1290_ReadEdgeDetection(MVME_INTERFACE *mvme, uint32_t base)
 {
-	return v1290_ReadMicro(mvme, base, V1290_READ_DEAD_TIME_OPCODE);
+	uint16_t ret = v1290_ReadMicro(mvme, base, V1290_READ_DETECTION_OPCODE);
+  switch (ret)
+  {
+    case 0:
+      printf("Edge detection: pair\n");
+      break;
+    case 1:
+      printf("Edge detection: trailing\n");
+      break;
+    case 2:
+      printf("Edge detection: leading\n");
+      break;
+    case 3:
+      printf("Edge detection: trailing and leading\n");
+      break;
+    default:
+      printf("Invalid setting!\n");
+      ret = 100;
+      break;
+  }
+  return ret;
 }
 
 void v1290_SetDeadtime(MVME_INTERFACE *mvme, uint32_t base, uint16_t deadtime)
@@ -266,7 +313,28 @@ void v1290_SetDeadtime(MVME_INTERFACE *mvme, uint32_t base, uint16_t deadtime)
 
 uint16_t v1290_ReadDeadtime(MVME_INTERFACE *mvme, uint32_t base)
 {
-	return v1290_ReadMicro(mvme, base, V1290_READ_DEAD_TIME_OPCODE);
+	uint16_t ret = v1290_ReadMicro(mvme, base, V1290_READ_DEAD_TIME_OPCODE);
+  switch (ret)
+  {
+    case 0:
+      printf("Channel deadtime: 5 ns\n");
+      break;
+    case 1:
+      printf("Channel deadtime: 10 ns\n");
+      break;
+    case 2:
+      printf("Channel deadtime: 30 ns\n");
+      break;
+    case 3:
+      printf("Channel deadtime: 100 ns\n");
+      break;
+    default:
+      printf("Invalid setting!\n");
+      ret = 100;
+      break;
+  }
+
+  return ret;
 }
 
 //TDC read out

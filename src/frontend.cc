@@ -22,9 +22,11 @@
 #include "bt617.h"
 #include "rpv130.h"
 #include "v006.h"
+#include "v1290.h"
 
 #define RPV130_BASE 0x8000
 #define V006_BASE 0xEFFF00
+#define V1290N_BASE 0x00200000
 
 #define DEBUG
 #undef DEBUG
@@ -115,6 +117,9 @@ resume_run:     When a run is resumed. Should enable trigger events.
 int evt_cnt = 0;
 
 MVME_INTERFACE *myvme;
+void v1290_SetupTrigger(MVME_INTERFACE *myvme);
+void v1290_SetupTDC(MVME_INTERFACE *myvme);
+void v1290_SetupReadout(MVME_INTERFACE *myvme);
 
 /*-- Frontend Init -------------------------------------------------*/
 INT frontend_init()
@@ -125,6 +130,15 @@ INT frontend_init()
   // Clear modules
   v006_clear(myvme, V006_BASE);
 
+  v1290_ModuleReset(myvme, V1290N_BASE);
+  ss_sleep(1000);
+
+  v1290_SetupTDC(myvme);
+  ss_sleep(1000);
+  v1290_SetupTrigger(myvme);
+  ss_sleep(1000);
+  v1290_ReadStatusRegister(myvme, V1290N_BASE);
+  ss_sleep(5*1000);
 
 
   return SUCCESS;
@@ -156,6 +170,7 @@ INT begin_of_run(INT run_number, char *error)
 /*-- End of Run ----------------------------------------------------*/
 INT end_of_run(INT run_number, char *error)
 {
+  // force clear busy status, wait for another trigger to end run smoothly
   rpv130_Pulse(myvme, RPV130_BASE, 1);
 #ifdef DEBUG
   cm_msg(MINFO, frontend_name, "End run %d!\n", run_number);
@@ -240,6 +255,7 @@ double get_time()
   return tv.tv_sec + 0.000001*tv.tv_usec;
 }
 
+#include <stdint.h>
 int read_trigger_event(char *pevent, int off)
 {
   bk_init32(pevent);
@@ -258,17 +274,103 @@ int read_trigger_event(char *pevent, int off)
   else
   {
 #ifdef DEBUG
-    cm_msg(MINFO, frontend_name, "No data ..");
+    cm_msg(MINFO, frontend_name, "V006: no data ..");
 #endif
     ss_sleep(1);
   }
   bk_close(pevent, pdatad + 1);
 
+  uint32_t *ptdc;
+  int nbyte;
+  bk_create(pevent, "TDC", TID_INT, &ptdc);
+
+  int data_ready_v1290 = v1290_IsDataReady(myvme, V1290N_BASE);
+  if (data_ready_v1290)
+  {
+    v1290_EventRead(myvme, V1290N_BASE, ptdc, &nbyte);
+#ifdef DEBUG
+    cm_msg(MINFO, frontend_name, "V1290: read %d bytes", nbyte);
+#endif
+  }
+  else
+  {
+#ifdef DEBUG
+    cm_msg(MINFO, frontend_name, "V1290: no data ..");
+#endif
+    ss_sleep(1);
+  }
+
+  bk_close(pevent, ptdc++);
+
   // reset pulse to V006
   rpv130_Pulse(myvme, RPV130_BASE, 2);
+  // clear V1290N
+  v1290_SoftClear(myvme, V1290N_BASE);
   // reset flip/flop for a new event
   rpv130_Pulse(myvme, RPV130_BASE, 1);
 
   return bk_size(pevent);
+}
+
+void v1290_SetupTrigger(MVME_INTERFACE *myvme)
+{
+	printf("Setting acquisition mode for V1290N, be patience ...");
+	v1290_TriggerMatchingSet(myvme, V1290N_BASE);
+  printf(".");
+	ss_sleep(1000);
+	v1290_SetWindowWidth(myvme, V1290N_BASE, 40000);
+  printf(".");
+	ss_sleep(1000);
+	v1290_SetWindowOffset(myvme, V1290N_BASE, -10000);
+  printf(".");
+	ss_sleep(1000);
+	/*v1290_SetExtraMargin(myvme, V1290N_BASE, 0x9);*/
+  //printf(".");
+	/*ss_sleep(1000);*/
+  //printf(".");
+	/*v1290_SetRejectMargin(myvme, V1290N_BASE, 0x8);*/
+	/*ss_sleep(1000);*/
+	v1290_EnableTriggerSubtraction(myvme, V1290N_BASE, true);
+  printf(".");
+	ss_sleep(1000);
+  printf("\n");
+
+	v1290_AcqModeRead(myvme, V1290N_BASE);
+	//uint16_t trg_conf[5];
+	//v1290_TriggerConfRead(myvme, V1290N_BASE, trg_conf);
+}
+void v1290_SetupTDC(MVME_INTERFACE *myvme)
+{
+	printf("Setting TDC ...\n");
+	v1290_SetEdgeDetection(myvme, V1290N_BASE, 0x2);
+	ss_sleep(1000);
+	v1290_ReadEdgeDetection(myvme, V1290N_BASE);
+
+	//v1290_SetEdgeResolution(myvme, V1290N_BASE, 0x1);
+	//ss_sleep(1000);
+	v1290_ReadEdgeResolution(myvme, V1290N_BASE);
+
+	//v1290_SetDeadtime(myvme, V1290N_BASE, 0x2);
+	//ss_sleep(1000);
+	v1290_ReadDeadtime(myvme, V1290N_BASE);
+}
+void v1290_SetupReadout(MVME_INTERFACE *myvme)
+{
+	v1290_EnableHeader(myvme, V1290N_BASE, false);
+	ss_sleep(1000);
+	printf("header enable %d\n", v1290_HeaderIsEnabled(myvme, V1290N_BASE));
+	ss_sleep(1000);
+	printf("max hits %d\n", v1290_ReadMaxHits(myvme, V1290N_BASE));
+	ss_sleep(1000);
+	v1290_SetFIFOSize(myvme, V1290N_BASE, 0x6);
+	ss_sleep(1000);
+	printf("fifo size %d\n", v1290_ReadFIFOSize(myvme, V1290N_BASE));
+	ss_sleep(1000);
+	v1290_DisableAllChannels(myvme, V1290N_BASE);
+	v1290_WriteEnablePattern(myvme, V1290N_BASE, 0x5);
+	v1290_EnableChannel(myvme, V1290N_BASE, 0x0, false);
+	ss_sleep(1000);
+	printf("enable pattern %x\n", v1290_ReadEnablePattern(myvme, V1290N_BASE));
+	v1290_EnableChannel(myvme, V1290N_BASE, 0, true);
 }
 // end file
