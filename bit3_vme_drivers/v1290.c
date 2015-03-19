@@ -593,6 +593,70 @@ uint16_t v1290_ReadEventFIFOStatus(MVME_INTERFACE *mvme, uint32_t base)
 	return (v1290_Read16(mvme, base, V1290_EVENT_FIFO_STATUS)&0x3);
 }
 
+void v1290_Decode(uint32_t data)
+{
+  uint32_t error_flag;
+  switch((data&0xf8000000)>>27) {
+    case 0x0:
+      printf("Data:\t\t");
+      //showbits(data);
+      printf("channel: %d\t",(data&V1290_CH_MASK)>>21);
+      printf("value(ns): %.4f\t",(float)(data&V1290_DATA_MASK)/40);
+      printf("trailing/leading(1/0):%d",(data&(1<<26))>>26);
+      putchar('\n');
+      break;
+    case 0x8:
+      printf("Global header\t");
+      //showbits(data);
+      printf("Event count:%d\t",(data&V1290_GLB_HDR_EVENT_COUNT_MSK)>>5);
+      printf("Geo addr:%d",data&V1290_GLB_HDR_GEO_MSK);
+      putchar('\n');
+      break;
+    case 0x1:
+      printf("TDC header\t");
+      //showbits(data);
+      printf("TDC: %d\t",(data&V1290_TDC_HDR_TDC_MSK)>>24);
+      printf("EventID: %d\t",(data&V1290_TDC_HDR_EVENT_ID_MSK)>>12);
+      printf("BunchID: %d\t",(data&V1290_TDC_HDR_BUNCH_ID_MSK));
+      putchar('\n');
+      break;
+    case 0x3:
+      printf("TDC trailer\t");
+      //showbits(data);
+      printf("TDC: %d\t",(data&V1290_TDC_TRL_TDC_MSK)>>24);
+      printf("EventID: %d\t",(data&V1290_TDC_TRL_EVENT_ID_MSK)>>12);
+      printf("Word count: %d\t",(data&V1290_TDC_TRL_WCOUNT_MSK));
+      putchar('\n');
+      break;
+    case 0x11:
+      printf("Extented trigger time tag: %x\t",data&V1290_GLB_TRG_TIME_TAG_MSK);
+      //showbits(data);
+      putchar('\n');
+      break;
+    case 0x10:
+      printf("Global Trailer\t\t");
+      //showbits(data);
+      printf("Error:%d\t",(data&V1290_GLB_TRL_STATUS_MSK)>>24);
+      printf("Word count:%d\t",(data&V1290_GLB_TRL_WCOUNT_MSK)>>5);
+      printf("Geo addr:%d",data&V1290_GLB_TRL_GEO_MSK);
+      putchar('\n');
+      break;
+    case 0x4:
+      printf("TDC error\t");
+      printf("TDC: %d\t",(data&V1290_TDC_HDR_TDC_MSK)>>24);
+      error_flag = data&V1290_TDC_ERR_ERR_FLAGS_MSK;
+      showbits(error_flag);
+      //showbits(data);
+      putchar('\n');
+      break;
+    default:
+      //printf("invalid data type : %d \n", (data&0xf8000000)>>27);
+      /*return(-1);*/
+      break;
+  }
+  /*return((data&0xf8000000)>>27);*/
+}
+
 /*#define TEST_V1290*/
 #ifdef TEST_V1290
 
@@ -725,3 +789,4 @@ void v1290_SetupReadout(MVME_INTERFACE *myvme)
 	v1290_EnableChannel(myvme, V1290N_BASE, 0, true);
 }
 #endif
+

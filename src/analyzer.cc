@@ -15,11 +15,16 @@ INT analyzer_loop_period = 0;
 INT odb_size = DEFAULT_ODB_SIZE;
 
 extern ANA_MODULE phadc_ana_module;
+extern ANA_MODULE mhtdc_ana_module;
 
-ANA_MODULE *trigger_module[] = {&phadc_ana_module, NULL};
+ANA_MODULE *trigger_module[] = {
+  &phadc_ana_module, 
+  &mhtdc_ana_module,
+  NULL};
 
 BANK_LIST ana_trigger_bank_list[] = {
   {"PHA", TID_INT, 1, NULL},
+  {"TDC", TID_INT, 1, NULL},
   {""},
 };
 

@@ -53,8 +53,8 @@ SRCDIR = src
 OBJDIR = obj
 
 # ana modules
-ANAMODULES = phadc_ana
-ANAMODULE_OBJS = $(OBJDIR)/$(ANAMODULES).o
+ANAMODULES = phadc_ana mhtdc_ana
+ANAMODULE_OBJS = $(OBJDIR)/phadc_ana.o $(OBJDIR)/mhtdc_ana.o
 
 # ROOT flags
 ROOTLIBDIR := $(shell $(ROOTSYS)/bin/root-config --libdir)
@@ -81,12 +81,16 @@ $(ODBSETUP): $(OBJDIR)/$(ODBSETUP).o $(MIDASLIBS)
 	$(CXX) -o $@ $(CXXFLAGS) $(OSFLAGS) $^ $(MIDASLIBS) $(LIBS)
 
 $(ANALYZER): $(OBJDIR)/$(ANALYZER).o $(MANA) $(ANAMODULE_OBJS)
-	$(CXX) -o $@ $(CXXFLAGS) $^ $(ROOTANALIB) $(MIDASLIBS) $(ROOTGLIBS) \
+	$(CXX) -o $@ $(CXXFLAGS) $^ $(ROOTANALIB) $(MIDASLIBS) $(ROOTGLIBS) $(DRV)\
 		-lm -lz -lpthread -lrt -lutil $(RPATH)
+
+obj/mhtdc_ana.o: src/mhtdc_ana.cc
+	$(CXX) $(ROOTCFLAGS) $(CXXFLAGS) $(OSFLAGS) $(DRV) -c $< -o $@
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cc  Makefile
 	@mkdir -p $(shell dirname $@)
 	$(CXX) $(ROOTCFLAGS) $(CXXFLAGS) $(OSFLAGS) -c $< -o $@
+
 
 %.o: %.cc  Makefile
 	$(CXX) $(CXXFLAGS) $(OSFLAGS) -c $< -o $@

@@ -299,8 +299,7 @@ int read_trigger_event(char *pevent, int off)
 #endif
     ss_sleep(1);
   }
-
-  bk_close(pevent, ptdc++);
+  bk_close(pevent, ptdc + nbyte);
 
   // reset pulse to V006
   rpv130_Pulse(myvme, RPV130_BASE, 2);

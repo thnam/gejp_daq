@@ -280,4 +280,5 @@ void v1290_FWRev(MVME_INTERFACE *mvme, uint32_t base);
 void v1290_ReadEventFIFO(MVME_INTERFACE *mvme, uint32_t base, uint16_t *dest);
 uint16_t v1290_ReadEventFIFOStored(MVME_INTERFACE *mvme, uint32_t base);
 uint16_t v1290_ReadEventFIFOStatus(MVME_INTERFACE *mvme, uint32_t base);
+void v1290_Decode(uint32_t data);
 #endif /* end of include guard: V1290_7NX5IH0R */
