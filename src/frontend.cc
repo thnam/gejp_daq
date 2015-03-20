@@ -323,25 +323,23 @@ void v1290_SetupTrigger(MVME_INTERFACE *myvme)
 	v1290_SetWindowOffset(myvme, V1290N_BASE, -10000);
   printf(".");
 	ss_sleep(1000);
-	/*v1290_SetExtraMargin(myvme, V1290N_BASE, 0x9);*/
+  //v1290_SetExtraMargin(myvme, V1290N_BASE, 0x9);
   //printf(".");
-	/*ss_sleep(1000);*/
+  //ss_sleep(1000);
   //printf(".");
-	/*v1290_SetRejectMargin(myvme, V1290N_BASE, 0x8);*/
-	/*ss_sleep(1000);*/
+  //v1290_SetRejectMargin(myvme, V1290N_BASE, 0x8);
+  //ss_sleep(1000);
 	v1290_EnableTriggerSubtraction(myvme, V1290N_BASE, true);
   printf(".");
 	ss_sleep(1000);
   printf("\n");
 
 	v1290_AcqModeRead(myvme, V1290N_BASE);
-	//uint16_t trg_conf[5];
-	//v1290_TriggerConfRead(myvme, V1290N_BASE, trg_conf);
 }
 void v1290_SetupTDC(MVME_INTERFACE *myvme)
 {
 	printf("Setting TDC ...\n");
-	v1290_SetEdgeDetection(myvme, V1290N_BASE, 0x2);
+	v1290_SetEdgeDetection(myvme, V1290N_BASE, 0x1);
 	ss_sleep(1000);
 	v1290_ReadEdgeDetection(myvme, V1290N_BASE);
 

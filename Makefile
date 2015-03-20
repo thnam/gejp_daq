@@ -84,9 +84,6 @@ $(ANALYZER): $(OBJDIR)/$(ANALYZER).o $(MANA) $(ANAMODULE_OBJS)
 	$(CXX) -o $@ $(CXXFLAGS) $^ $(ROOTANALIB) $(MIDASLIBS) $(ROOTGLIBS) $(DRV)\
 		-lm -lz -lpthread -lrt -lutil $(RPATH)
 
-obj/mhtdc_ana.o: src/mhtdc_ana.cc
-	$(CXX) $(ROOTCFLAGS) $(CXXFLAGS) $(OSFLAGS) $(DRV) -c $< -o $@
-
 $(OBJDIR)/%.o: $(SRCDIR)/%.cc  Makefile
 	@mkdir -p $(shell dirname $@)
 	$(CXX) $(ROOTCFLAGS) $(CXXFLAGS) $(OSFLAGS) -c $< -o $@

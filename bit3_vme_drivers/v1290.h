@@ -222,11 +222,12 @@ void v1290_TriggerMatchingSet(MVME_INTERFACE *mvme, uint32_t base);
 void v1290_ContinuosSet(MVME_INTERFACE *mvme, uint32_t base);
 int v1290_AcqModeRead(MVME_INTERFACE *mvme, uint32_t base);
 // Trigger matching mode related settings
-int v1290_TriggerConfRead(MVME_INTERFACE *mvme, uint32_t base, uint16_t *conf);
-void v1290_SetWindowWidth(MVME_INTERFACE *mvme, uint32_t base, uint16_t width);
-void v1290_SetWindowOffset(MVME_INTERFACE *mvme, uint32_t base, int16_t offset);
-void v1290_SetExtraMargin(MVME_INTERFACE *mvme, uint32_t base, uint16_t margin);
-void v1290_SetRejectMargin(MVME_INTERFACE *mvme, uint32_t base, uint16_t margin);
+//int v1290_TriggerConfRead(MVME_INTERFACE *mvme, uint32_t base, uint16_t *conf);
+int v1290_TriggerConfRead(MVME_INTERFACE *mvme, uint32_t base);
+void v1290_SetWindowWidth(MVME_INTERFACE *mvme, uint32_t base, uint32_t width);
+void v1290_SetWindowOffset(MVME_INTERFACE *mvme, uint32_t base, int32_t offset);
+void v1290_SetExtraMargin(MVME_INTERFACE *mvme, uint32_t base, uint32_t margin);
+void v1290_SetRejectMargin(MVME_INTERFACE *mvme, uint32_t base, uint32_t margin);
 void v1290_EnableTriggerSubtraction(MVME_INTERFACE *mvme, uint32_t base, bool en);
 // TDC edge and resolution settings
 // only 2 lsb bits matter (see 5.4 @ manual)

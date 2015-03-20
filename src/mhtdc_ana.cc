@@ -69,14 +69,15 @@ INT mhtdc_ana(EVENT_HEADER * pheader, void *pevent)
     return 1;
   }
 
-  printf("nbyte: %d\n", nbyte);
   for (int ib = 0; ib < nbyte; ++ib)
   {
-    v1290_Decode((uint32_t)pdata[ib]);
-		if(V1290_IS_TDC_MEASURE(pdata[ib]))
+    //v1290_Decode((uint32_t)pdata[ib]);
+		if(V1290_IS_TDC_MEASURE(pdata[ib]) && V1290_GET_TDC_MSR_CHANNEL(pdata[ib]) == 1)
 		{
-    printf("buff[%02d], ch %02d:",ib,V1290_GET_TDC_MSR_CHANNEL(pdata[ib]));
-    printf(", value: %d, ", V1290_GET_TDC_MSR_MEASURE(pdata[ib]));
+      printf("event %d: ", pheader->serial_number);
+      printf("ch %02d:",V1290_GET_TDC_MSR_CHANNEL(pdata[ib]));
+      printf(", value: %d, ", V1290_GET_TDC_MSR_MEASURE(pdata[ib]));
+      printf("\n");
     }
   }
 

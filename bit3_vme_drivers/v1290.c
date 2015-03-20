@@ -188,46 +188,61 @@ int v1290_AcqModeRead(MVME_INTERFACE *mvme, uint32_t base)
 	return (value & 0x1);
 }
 
-int v1290_TriggerConfRead(MVME_INTERFACE *mvme, uint32_t base, uint16_t *conf)
+/*int v1290_TriggerConfRead(MVME_INTERFACE *mvme, uint32_t base, uint16_t *conf)*/
+int v1290_TriggerConfRead(MVME_INTERFACE *mvme, uint32_t base)
 {
   int   cmode, value;
+  uint16_t width;
+  int16_t offset;
+  uint16_t extra_width;
+  uint16_t reject_margin;
+  uint16_t subtraction;
   mvme_get_dmode(mvme, &cmode);
   mvme_set_dmode(mvme, MVME_DMODE_D16);
   value = v1290_MicroWrite(mvme, base, V1290_READ_TRG_CONF_OPCODE);
-	for (int i = 0; i < 5; ++i)
-	{
-		value = v1290_MicroRead(mvme, base);
-		printf("%x\n", (uint16_t)value);
-		*conf++ = (uint16_t)value;
-	}
+
+  width = v1290_MicroRead(mvme, base);
+  offset = (int16_t)v1290_MicroRead(mvme, base);
+  extra_width = v1290_MicroRead(mvme, base);
+  reject_margin = v1290_MicroRead(mvme, base);
+  subtraction = v1290_MicroRead(mvme, base);
+
+  printf("Trigger settings:\n");
+  printf("- match window width: %d ns\n", width*25);
+
+  printf("- match window offset: %d ns\n", offset*25);
+
+  printf("- extra search window width: %d ns\n", extra_width*25);
+  printf("- reject margin: %d ns\n", reject_margin*25);
+  printf("- trigger time subtraction: %d\n", subtraction>>15);
 
   mvme_set_dmode(mvme, cmode);
 	return 0;
 }
 
-void v1290_SetWindowWidth(MVME_INTERFACE *mvme, uint32_t base, uint16_t width)
+void v1290_SetWindowWidth(MVME_INTERFACE *mvme, uint32_t base, uint32_t width)
 {
-	v1290_WriteMicro(mvme, base, V1290_SET_WIN_WIDTH_OPCODE, width/25);
+	v1290_WriteMicro(mvme, base, V1290_SET_WIN_WIDTH_OPCODE, (int16_t)width/25);
 }
 
-void v1290_SetWindowOffset(MVME_INTERFACE *mvme, uint32_t base, int16_t offset)
+void v1290_SetWindowOffset(MVME_INTERFACE *mvme, uint32_t base, int32_t offset)
 {
-	uint16_t tmp = abs(offset/25);
-	if (offset>0)
-		tmp += 0xf000;
-	else
-		tmp += 0xf800;
-	v1290_WriteMicro(mvme, base, V1290_SET_WIN_OFFSET_OPCODE, tmp);
+  if (offset < -2048*25)
+    offset = -2048*25;
+  if (offset > +40*25)
+    offset = 40*25;
+
+	v1290_WriteMicro(mvme, base, V1290_SET_WIN_OFFSET_OPCODE, (int16_t)offset/25);
 }
 
-void v1290_SetExtraMargin(MVME_INTERFACE *mvme, uint32_t base, uint16_t margin)
+void v1290_SetExtraMargin(MVME_INTERFACE *mvme, uint32_t base, uint32_t margin)
 {
-	v1290_WriteMicro(mvme, base, V1290_SET_SW_MARGIN_OPCODE, margin);
+	v1290_WriteMicro(mvme, base, V1290_SET_SW_MARGIN_OPCODE, (uint16_t)margin/25);
 }
 
-void v1290_SetRejectMargin(MVME_INTERFACE *mvme, uint32_t base, uint16_t margin)
+void v1290_SetRejectMargin(MVME_INTERFACE *mvme, uint32_t base, uint32_t margin)
 {
-	v1290_WriteMicro(mvme, base, V1290_SET_REJ_MARGIN_OPCODE, margin);
+	v1290_WriteMicro(mvme, base, V1290_SET_REJ_MARGIN_OPCODE, (uint16_t) margin/25);
 }
 
 void v1290_EnableTriggerSubtraction(MVME_INTERFACE *mvme, uint32_t base, bool en)
@@ -660,7 +675,7 @@ void v1290_Decode(uint32_t data)
 /*#define TEST_V1290*/
 #ifdef TEST_V1290
 
-#define V1290N_BASE 0x00400000
+#define V1290N_BASE 0x00200000
 #define RPV130_BASE 0x8000
 #include "rpv130.h"
 void v1290_SetupTrigger(MVME_INTERFACE *myvme);
@@ -673,17 +688,27 @@ int main()
 	mvme_open(&myvme, 0);
 
 	/*v1290_SoftReset(myvme,V1290N_BASE);*/
-	v1290_ModuleReset(myvme, V1290N_BASE);
-	sleep(1);
-	v1290_SetupTrigger(myvme);
+  /*v1290_ModuleReset(myvme, V1290N_BASE);*/
+  /*sleep(1);*/
+	/*v1290_SetupTrigger(myvme);*/
 	/*v1290_SetupTDC(myvme);*/
 	/*v1290_SetupReadout(myvme);*/
-	v1290_EnableBusError(myvme, V1290N_BASE, true);
-	v1290_EnableEventFIFO(myvme, V1290N_BASE, true);
-	v1290_EnableEmptyEvent(myvme, V1290N_BASE, true);
-	v1290_ReadControlRegister(myvme, V1290N_BASE);
+	/*v1290_EnableBusError(myvme, V1290N_BASE, true);*/
+	/*v1290_EnableEventFIFO(myvme, V1290N_BASE, true);*/
+	/*v1290_EnableEmptyEvent(myvme, V1290N_BASE, true);*/
+	/*v1290_ReadControlRegister(myvme, V1290N_BASE);*/
 
-#if 1
+  v1290_SetWindowWidth(myvme, V1290N_BASE, 40000);
+  sleep(1);
+  v1290_SetWindowOffset(myvme, V1290N_BASE, -10000);
+  sleep(1);
+  v1290_SetExtraMargin(myvme, V1290N_BASE, 100);
+  sleep(1);
+  v1290_SetRejectMargin(myvme, V1290N_BASE, 100);
+  sleep(1);
+	v1290_TriggerConfRead(myvme, V1290N_BASE);
+
+#if 0
 	printf("v1290DataReady: %d\n",v1290_IsDataReady(myvme, V1290N_BASE));
 	uint16_t fifo[2];
 	v1290_ReadEventFIFO(myvme, V1290N_BASE, fifo);
@@ -750,8 +775,6 @@ void v1290_SetupTrigger(MVME_INTERFACE *myvme)
 	sleep(1);
 	v1290_AcqModeRead(myvme, V1290N_BASE);
 	sleep(1);
-	uint16_t trg_conf[5];
-	v1290_TriggerConfRead(myvme, V1290N_BASE, trg_conf);
 }
 void v1290_SetupTDC(MVME_INTERFACE *myvme)
 {
