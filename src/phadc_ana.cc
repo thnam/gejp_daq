@@ -36,7 +36,6 @@ static TH1I *hPHADC;
 
 INT phadc_ana_init(void)
 {
-
   hPHADC = h1_book<TH1I>("PHADC", "PHADC", 16384, 0, 16383);
   return SUCCESS;
 }

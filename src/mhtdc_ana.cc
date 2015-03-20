@@ -34,12 +34,16 @@ ANA_MODULE mhtdc_ana_module = {
 #include "TH1F.h"
 
 static TH1F *hTdiff[2];
+static TH1F *hTdc[3];
 
 INT mhtdc_ana_init(void)
 {
 
   hTdiff[0] = h1_book<TH1F>("Tdiff chn1 - chn0", "tdiff1", 4096, -10E3, 30E3);
-  hTdiff[1] = h1_book<TH1F>("Tdiff chn2 - chn0", "tdiff2", 16384, -10E3, 40E3);
+  hTdiff[1] = h1_book<TH1F>("Tdiff chn2 - chn0", "tdiff2", 4096, -10E3, 30E3);
+  hTdc[0] = h1_book<TH1F>("tdc0", "tdc0", 4096, -10E3, 30E3);
+  hTdc[1] = h1_book<TH1F>("tdc1", "tdc1", 4096, -10E3, 30E3);
+  hTdc[2] = h1_book<TH1F>("tdc2", "tdc2", 4096, -10E3, 30E3);
   return SUCCESS;
 }
 
@@ -92,10 +96,17 @@ INT mhtdc_ana(EVENT_HEADER * pheader, void *pevent)
   }
   if (t[0] > fake_value)
   {
+    hTdc[0]->Fill(t[0]);
     if (t[1] > fake_value)
+    {
+      hTdc[1]->Fill(t[1]);
       hTdiff[0]->Fill(t[1] - t[0]);
+    }
     if (t[2] > fake_value)
+    {
+      hTdc[2]->Fill(t[2]);
       hTdiff[1]->Fill(t[2] - t[0]);
+    }
   }
 
   return SUCCESS;

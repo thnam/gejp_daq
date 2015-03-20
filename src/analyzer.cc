@@ -4,8 +4,6 @@
 
 #include "midas.h"
 
-#include "TH1I.h"
-
 char *analyzer_name = "Analyzer";
 
 /* analyzer_loop is called with this interval in ms (0 to disable)  */

@@ -317,10 +317,10 @@ void v1290_SetupTrigger(MVME_INTERFACE *myvme)
 	v1290_TriggerMatchingSet(myvme, V1290N_BASE);
   printf(".");
 	ss_sleep(1000);
-	v1290_SetWindowWidth(myvme, V1290N_BASE, 40000);
+	v1290_SetWindowWidth(myvme, V1290N_BASE, 20000);
   printf(".");
 	ss_sleep(1000);
-	v1290_SetWindowOffset(myvme, V1290N_BASE, -10000);
+	v1290_SetWindowOffset(myvme, V1290N_BASE, -20000);
   printf(".");
 	ss_sleep(1000);
   //v1290_SetExtraMargin(myvme, V1290N_BASE, 0x9);
