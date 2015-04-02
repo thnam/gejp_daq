@@ -29,7 +29,7 @@
 #define V1290N_BASE 0x00200000
 
 #define DEBUG
-#undef DEBUG
+//#undef DEBUG
 
 /* make frontend functions callable from the C framework */
 #ifdef __cplusplus
@@ -267,8 +267,10 @@ int read_trigger_event(char *pevent, int off)
   if (lam_v006)
   {
     pdatad[0] = (int) v006_adc(myvme, V006_BASE, 0);
+    pdatad[1] = (int) v006_adc(myvme, V006_BASE, 1);
 #ifdef DEBUG
     cm_msg(MINFO, frontend_name, "adc:  %d ", pdatad[0]);
+    cm_msg(MINFO, frontend_name, "adc:  %d ", pdatad[1]);
 #endif
   }
   else
@@ -278,7 +280,7 @@ int read_trigger_event(char *pevent, int off)
 #endif
     ss_sleep(1);
   }
-  bk_close(pevent, pdatad + 1);
+  bk_close(pevent, pdatad + 2);
 
   uint32_t *ptdc;
   int nbyte;

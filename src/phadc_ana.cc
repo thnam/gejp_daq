@@ -32,11 +32,12 @@ ANA_MODULE phadc_ana_module = {
 
 /*------------------------------------------------------------------*/
 
-static TH1I *hPHADC;
+static TH1I *hPHADC[2];
 
 INT phadc_ana_init(void)
 {
-  hPHADC = h1_book<TH1I>("PHADC", "PHADC", 16384, 0, 16383);
+  hPHADC[0] = h1_book<TH1I>("PHADC0", "PHADC0", 16384, 0, 16383);
+  hPHADC[1] = h1_book<TH1I>("PHADC1", "PHADC1", 16384, 0, 16383);
   return SUCCESS;
 }
 
@@ -65,7 +66,8 @@ INT phadc_ana(EVENT_HEADER * pheader, void *pevent)
     return 1;
   }
 
-  hPHADC->Fill(pdata[0]);
+  hPHADC[0]->Fill(pdata[0]);
+  hPHADC[1]->Fill(pdata[1]);
 
   return SUCCESS;
 }

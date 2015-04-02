@@ -39,11 +39,16 @@ static TH1F *hTdc[3];
 INT mhtdc_ana_init(void)
 {
 
-  hTdiff[0] = h1_book<TH1F>("Tdiff chn1 - chn0", "tdiff1", 4096, -10E3, 30E3);
-  hTdiff[1] = h1_book<TH1F>("Tdiff chn2 - chn0", "tdiff2", 4096, -10E3, 30E3);
-  hTdc[0] = h1_book<TH1F>("tdc0", "tdc0", 4096, -10E3, 30E3);
-  hTdc[1] = h1_book<TH1F>("tdc1", "tdc1", 4096, -10E3, 30E3);
-  hTdc[2] = h1_book<TH1F>("tdc2", "tdc2", 4096, -10E3, 30E3);
+  hTdiff[0] = h1_book<TH1F>("tdiff1", "Time diff chn1 - chn0", 4096, -10E3, 10E3);
+  hTdiff[1] = h1_book<TH1F>("tdiff2", "Time diff chn2 - chn0", 4096, -10E3, 10E3);
+  hTdc[0] = h1_book<TH1F>("tdc0", "TDC0", 4096, -10E3, 20E3);
+  hTdc[1] = h1_book<TH1F>("tdc1", "TDC1", 4096, -10E3, 20E3);
+  hTdc[2] = h1_book<TH1F>("tdc2", "TDC2", 4096, -10E3, 20E3);
+  hTdiff[0]->SetXTitle("Time [ns]");
+  hTdiff[1]->SetXTitle("Time [ns]");
+  hTdc[0]->SetXTitle("Time [ns]");
+  hTdc[1]->SetXTitle("Time [ns]");
+  hTdc[2]->SetXTitle("Time [ns]");
   return SUCCESS;
 }
 
