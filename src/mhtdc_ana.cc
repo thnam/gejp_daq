@@ -33,7 +33,7 @@ ANA_MODULE mhtdc_ana_module = {
 #include "v1290.h"
 #include "TH1F.h"
 
-static TH1F *hTdiff[2];
+static TH1F *hTdiff[3];
 static TH1F *hTdc[3];
 
 INT mhtdc_ana_init(void)
@@ -41,11 +41,13 @@ INT mhtdc_ana_init(void)
 
   hTdiff[0] = h1_book<TH1F>("tdiff1", "Time diff chn1 - chn0", 4096, -10E3, 10E3);
   hTdiff[1] = h1_book<TH1F>("tdiff2", "Time diff chn2 - chn0", 4096, -10E3, 10E3);
+  hTdiff[2] = h1_book<TH1F>("tdiff2-1", "Time diff chn2 - chn1", 4096, -10E3, 10E3);
   hTdc[0] = h1_book<TH1F>("tdc0", "TDC0", 4096, -10E3, 20E3);
   hTdc[1] = h1_book<TH1F>("tdc1", "TDC1", 4096, -10E3, 20E3);
   hTdc[2] = h1_book<TH1F>("tdc2", "TDC2", 4096, -10E3, 20E3);
   hTdiff[0]->SetXTitle("Time [ns]");
   hTdiff[1]->SetXTitle("Time [ns]");
+  hTdiff[2]->SetXTitle("Time [ns]");
   hTdc[0]->SetXTitle("Time [ns]");
   hTdc[1]->SetXTitle("Time [ns]");
   hTdc[2]->SetXTitle("Time [ns]");
@@ -68,6 +70,9 @@ INT mhtdc_ana_eor(INT run_number)
 
 /*-- event routine -------------------------------------------------*/
 
+float t[3];
+float fake_value = -200E3;
+
 INT mhtdc_ana(EVENT_HEADER * pheader, void *pevent)
 {
   int *pdata;
@@ -79,9 +84,8 @@ INT mhtdc_ana(EVENT_HEADER * pheader, void *pevent)
     return 1;
   }
 
-  int t[3];
-  int fake_value = -200E3;
   t[0] = t[1] = t[2] = fake_value;
+
   for (int ib = 0; ib < nbyte; ++ib)
   {
     //v1290_Decode((uint32_t)pdata[ib]);
@@ -96,9 +100,10 @@ INT mhtdc_ana(EVENT_HEADER * pheader, void *pevent)
     if(V1290_IS_TDC_MEASURE(pdata[ib]))
     {
       int chn = V1290_GET_TDC_MSR_CHANNEL(pdata[ib]);
-      t[chn] = V1290_GET_TDC_MSR_MEASURE(pdata[ib])*25/1000;
+      t[chn] = V1290_GET_TDC_MSR_MEASURE(pdata[ib])*25./1000;
     }
   }
+
   if (t[0] > fake_value)
   {
     hTdc[0]->Fill(t[0]);
@@ -111,6 +116,10 @@ INT mhtdc_ana(EVENT_HEADER * pheader, void *pevent)
     {
       hTdc[2]->Fill(t[2]);
       hTdiff[1]->Fill(t[2] - t[0]);
+    }
+    if ((t[2] > fake_value) && (t[1] > fake_value))
+    {
+      hTdiff[2]->Fill(t[2] - t[1]);
     }
   }
 
